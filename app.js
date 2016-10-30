@@ -1,8 +1,6 @@
 require('colors');
 var express = require('express');
 var app = express();
-var menue = require('./routes/menue');
-var pics = require('./routes/pics');
 
 var fs    = require("fs");
 var path = require('path');
@@ -12,8 +10,13 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var engines = require('consolidate');
 
-var conf = require('./config.json');
+var menue = require('./routes/menue');
+var pics = require('./routes/pics');
+var settings = require('./routes/settings');
 
+
+
+var conf = require('./config.json');
 var TCP = require('./bin/tcp/client');
 
 // view engine setup
@@ -33,7 +36,7 @@ app.use(cookieParser());
 
 /* routes */
 app.use('/', menue);
-app.use('/', menue);
+app.use('/', settings);
 app.use('/pics', pics);
 
 /* bootstrap, libs & stylesheets */
@@ -66,7 +69,6 @@ if (app.get('env') === 'development') {
   });
 }
 
-
 app.post('/tcpSend/', function(req,res) {
 	//var msg = String.fromCharCode(2)+'sMN SetAccessMode 3 7A99FDC6'+String.fromCharCode(3)+String.fromCharCode(2)+'sWN ADconfig0 1 64 1E 1E 2000 1 1E A 0'+String.fromCharCode(3)+String.fromCharCode(2)+'sMN Run'+String.fromCharCode(3);
 	var msg = req.body.myData; // string value
@@ -79,7 +81,6 @@ app.post('/tcpSend/', function(req,res) {
 	client.write(msg);
    res.send(200);
 });
-
 
 //TCP.setupTcpClient();
 var client = TCP();

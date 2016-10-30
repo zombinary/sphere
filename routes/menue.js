@@ -24,8 +24,8 @@ menue.get("/",function(req,res){
   res.sendFile(path.resolve(__dirname + "/../views/index.html"));
 });
 
-menue.get("/control",function(req,res){
-  res.sendFile(path.resolve(__dirname + "/../views/control.html"));
+menue.get("/settings",function(req,res){
+  res.sendFile(path.resolve(__dirname + "/../views/settings.html"));
 });
 
 menue.get("/light",function(req,res){
