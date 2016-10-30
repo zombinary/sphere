@@ -1,0 +1,12 @@
+// Here's my data model
+var ViewModel = function(ip) {
+    this.ipAddress = ko.observable(ip);
+    
+    this.ipAddressList = ko.computed(function() {
+        //return "< "+ this.ipAddress() +">";
+        return "< "+ 'unicorn' +">";
+    }, this);
+};
+ 
+//ko.applyBindings(new ViewModel("Planet", "Earth")); // This makes Knockout get to work
+ko.applyBindings(new ViewModel("127.0.0.1")); // This makes Knockout get to work
