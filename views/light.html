@@ -1,0 +1,236 @@
+<html>
+	<head>
+		<script src="angular.min.js"></script>
+		<script src="angular-route.min.js"></script>
+		<script src="jquery.min.js"></script>
+		<!-- slider -->
+		<link href="dependencies/css/bootstrap.min.css" rel="stylesheet">
+		<link href="css/bootstrap-slider.css" rel="stylesheet">
+		<script type="text/javascript" src="dependencies/js/modernizr.js"></script>
+		<script type="text/javascript" src="js/bootstrap-slider.js"></script>
+		<!-- source -->
+		<script src="light.js"></script>
+		<script src="slider-color.js"></script>
+	<head>
+	<body>
+	  <div>
+	  <div>
+	  	<nav class="navbar navbar-inverse" role="navigation" style="padding-left:130px;">
+	     <ul class="nav navbar-nav">
+	        <li><a href="/">Home</a></li>
+	        <li><a href="/control">Control</a></li>
+	        <li class="active"><a href="/light">light<span class="sr-only">(current)</span></a></li>
+	        <li><a href="/aboutUs">About us</a></li>
+	        <li><a href="/contactUs">Contact us</a></li>
+	      </ul>
+			</nav>
+		</div>
+	  <div class="jumbotron">
+	  	<p>
+				light controller
+	  	</p>
+		</div>
+	
+		<div class="col-sm-1">
+			<div id="options" class="modal hide fade">
+			  <div class="modal-header">
+			    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+			    <h3>Settings</h3>
+			  </div>
+			    <div class="modal-footer">
+			        <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+			        <button class="btn btn-primary" id="saveSettings">Save</button>
+			      </div>
+			</div>
+		</div>
+		
+		<div class="form-row well">
+			<div id="color-box"></div>
+			<div>
+				<input id="rgbSlider_1" data-slider-id='rgbSlider_1' type="text" data-slider-id="RGBC" data-slider-min="0" data-slider-max="308" data-slider-step="1" data-slider-value="0"></input>
+			</div>
+		</div>	
+		<div class="form-row well">
+			<center>
+				<button type="button" class="btn btn-lg btn-default" id="001_send_button">send</button>
+			</center>
+		</div>
+		<div class="form-row well">
+			<center>
+				<table>
+					<tr>
+						<th><button type="button" class="btn btn-lg btn-default" style="background-color:#FF0000;" id="btn_color_00" onclick="send2tcp(0xff0000)"></button></th>
+						<th><button type="button" class="btn btn-lg btn-default" style="background-color:#00FF00;" id="btn_color_01" onclick="send2tcp(0x00ff00)"></button></th>
+						<th><button type="button" class="btn btn-lg btn-default" style="background-color:#0000FF;" id="btn_color_02" onclick="send2tcp(0x0000ff)"></button></th>
+					</tr>
+					<tr>
+						<th><button type="button" class="btn btn-lg btn-default" style="background-color:#FF3200;" id="btn_color_03" onclick="send2tcp(0xff3200)"></button></th>
+						<th><button type="button" class="btn btn-lg btn-default" style="background-color:#00FF32;" id="btn_color_04" onclick="send2tcp(0x00ff32)"></button></th>
+						<th><button type="button" class="btn btn-lg btn-default" style="background-color:#3200FF;" id="btn_color_05" onclick="send2tcp(0x3200ff)"></button></th>
+					</tr>
+					<tr>
+						<th><button type="button" class="btn btn-lg btn-default" style="background-color:#FF6400;" id="btn_color_06" onclick="send2tcp(0xff6400)"></button></th>
+						<th><button type="button" class="btn btn-lg btn-default" style="background-color:#00FF64;" id="btn_color_07" onclick="send2tcp(0x00ff64)"></button></th>
+						<th><button type="button" class="btn btn-lg btn-default" style="background-color:#6400FF;" id="btn_color_08" onclick="send2tcp(0x6400ff)"></button></th>
+					</tr>
+					<tr>
+						<th><button type="button" class="btn btn-lg btn-default" style="background-color:#FF6900;" id="btn_color_09" onclick="send2tcp(0xff6900)"></button></th>
+						<th><button type="button" class="btn btn-lg btn-default" style="background-color:#00FF96;" id="btn_color_10" onclick="send2tcp(0x00ff69)"></button></th>
+						<th><button type="button" class="btn btn-lg btn-default" style="background-color:#9600FF;" id="btn_color_11" onclick="send2tcp(0x6900ff)"></button></th>
+					</tr>
+					<tr>
+						<th><button type="button" class="btn btn-lg btn-default" style="background-color:#FFC800;" id="btn_color_12" onclick="send2tcp(0xffc800)"></button></th>
+						<th><button type="button" class="btn btn-lg btn-default" style="background-color:#00FFC8;" id="btn_color_13" onclick="send2tcp(0x00ffc8)"></button></th>
+						<th><button type="button" class="btn btn-lg btn-default" style="background-color:#C800FF;" id="btn_color_14" onclick="send2tcp(0xc800ff)"></button></th>
+					</tr>
+					<tr>
+						<th><button type="button" class="btn btn-lg btn-default" style="background-color:#FFFA00;" id="btn_color_15" onclick="send2tcp(0xfffa00)"></button></th>
+						<th><button type="button" class="btn btn-lg btn-default" style="background-color:#00FFFA;" id="btn_color_16" onclick="send2tcp(0x00fffa)"></button></th>
+						<th><button type="button" class="btn btn-lg btn-default" style="background-color:#FA00FF;" id="btn_color_17" onclick="send2tcp(0xfa00ff)"></button></th>
+					</tr>
+				</table>
+			</center>
+		</div>				
+<!--	
+		<div class="form-row well">
+			<input id="rgbSlider_1" data-slider-id='rgbSlider_1' type="text" data-slider-id="RGBC" data-slider-min="0" data-slider-max="308" data-slider-step="1" data-slider-value="0"></input>
+			<div id="color-box"></div>
+			<button type="button" class="btn btn-lg btn-default" id="001_send_button">send</button>
+		</div>
+-->		
+<!--		
+		<div class="form-row well">
+			<input id="rgbSlider_2" data-slider-id='rgbSlider_2' type="text" data-slider-id="RGBC" data-slider-min="0" data-slider-max="308" data-slider-step="1" data-slider-value="0"></input>
+			<input id="rgbSlider_3" type="text"
+	              data-provide="slider"
+	              data-slider-ticks="[1, 2, 3]"
+	              data-slider-ticks-labels='["short", "medium", "long"]'
+	              data-slider-min="1"
+	              data-slider-max="3"
+	              data-slider-step="1"
+	              data-slider-value="3"
+	              data-slider-tooltip="hide"></input>
+	
+		</div>
+-->
+<!--		
+		<div class="col-sm-2">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+-->
+			    <!--<h3 class="panel-title">txPower</h3> -->
+<!--
+			    <span class="glyphicon glyphicon-signal" aria-hidden="true" style="position:right"><strong>server [1]</strong></span>
+			    	
+			  </div>
+			  	<div class="panel-body">
+			    	<p>
+	     	     	<button type="button" class="btn btn-lg btn-default" id="btn-rgb_red">red</button>
+				     	<button type="button" class="btn btn-lg btn-default" id="btn-rgb_green">green</button>
+			 	     	<button type="button" class="btn btn-lg btn-default" id="btn-rgb_blue">blue</button>
+			     	</p>
+			  	</div>
+			</div>
+		</div>
+-->
+	</body>
+</html>
+
+<style type="text/css">
+	.glyphicon.glzphicon-signal {
+    	position: right; 
+	}
+
+	#rgbSlider_1 .slider-selection {
+		background: #BABABA;
+	}	
+	#rgbSlider_2 .slider-selection {
+		background: #BABABA;
+	}	
+
+#RGBC .slider-selection {
+	background: #8283FF;
+}
+#RGBC .slider-handle {
+	border-bottom-color: blue;
+}
+
+#color-box {
+	 position right;
+	 border:1px solid #000;
+    width: 100px;
+    height: 50px;
+    background-color: rgb(255, 255, 255);
+    display: inline-block;
+    //position: absolute;
+    //float: right;
+    
+    
+}
+</style>
+
+<script type="text/javascript">
+
+function send2tcp(rgb_value) {
+	var obj = {};
+	
+	//console.log(rgb_value)
+	//console.log(JSON.stringify(rgb_value));
+	
+	//obj.myData = 'unicorn';
+	//obj.myData = rgb_value.toString();
+	obj.myData = rgb_value;
+	
+	
+	$.ajax({
+		url: '/tcpSend/',
+		type: 'POST',
+		data: JSON.stringify(obj),
+		contentType: 'application/json',
+		success: function (msg){
+				console.log('success: '	, msg.toString());
+			},error: function (xhr, status, error) {
+				console.log('Error: ' + error);
+			},
+	});
+};
+	
+$(document).ready(function () { 
+
+
+	var RGBChange = function() {
+
+		/* convert int to rgb */
+		var rgbslider = rgb.getValue();
+		var hex_rgb = hue[rgbslider];
+		var r = (hex_rgb >> 16) & 255;
+		var g = (hex_rgb >> 8) & 255;
+		var b = hex_rgb & 255; // 15
+		
+		$('#color-box').css('background', 'rgb('+r+','+g+','+b+')');
+		//return [r,g,b];
+		return hex_rgb;
+	};
+
+	var rgb = $('#rgbSlider_1').slider()
+		.on('slide', RGBChange)
+		.data('slider');
+		
+	$('#rgbSlider_2').slider()	
+	$('#rgbSlider_3').slider()	
+	
+
+
+	$('#001_send_button').on('click', function (e) {
+		//var value_send = [];
+		//		 value_send = RGBChange();
+		//var RGBjson = {red: value_send[0], green: value_send[1], blue: value_send[2]};
+		//send2tcp(RGBjson);
+		var value_send = RGBChange();
+		send2tcp(value_send);
+  });	
+});
+	
+</script>
+
+
