@@ -1,8 +1,8 @@
 version 0.0.2
 ============
 	
-	- add hue slider
-	- set several devices in 'config.json'
+  - add hue slider
+  - set several devices in 'config.json'
 
 version 0.0.1
 ============
