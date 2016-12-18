@@ -1,6 +1,6 @@
 sphere V0.0.2
 ============ 
-	nodejs based application to control your lights at home.
+  nodejs based application to control your lights at home.
 	
   **Sphere** is developed for the aurora server on atmel MCU's.
   The sphere.js runs with nodejs and send tcp packages to several devices.
