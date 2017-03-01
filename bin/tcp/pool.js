@@ -50,6 +50,13 @@ module.exports = {
             return client.isConnected();
           }
        };
+       client.on('connectionlost', function(err) {
+          util.log('[tcp] ['+uid+'] connectionlost: '.cyan.bold+ipAddress.toString().grey+':'.grey+port.toString().grey);
+          connecting = false;
+          setTimeout(function() {
+              obj.connect();
+          }, config.reconnectTime||5000);
+      });   
        client.on('connect',function() {
       	 if(client) {
       		 util.log('[tcp] ['+uid+'] connect://'+ipAddress+':'+port);

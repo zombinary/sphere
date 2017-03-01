@@ -1,55 +1,65 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
-	<title>Single page web app using Angularjs</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />	
+	<title>Responsive Web Mobile - SlidePanel</title>
 
-	<script src="angular.min.js"></script>
-	<script src="angular-route.min.js"></script>
-	<script src="jquery.min.js"></script>
-	<link rel="stylesheet" href="bootstrap.min.css" />
-	<script src="bootstrap.min.js"></script>
+	<!-- Set the viewport width to device width for mobile -->
+  	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  	<!-- Included Bootstrap CSS Files -->
+	<link rel="stylesheet" href="./js/bootstrap/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="./js/bootstrap/css/bootstrap-responsive.min.css" />
+
+	<!-- Includes FontAwesome -->
+	<link rel="stylesheet" href="./css/font-awesome/css/font-awesome.min.css" />
+
+	<!-- SlidePanel Css -->	
+	<link rel="stylesheet" href="./js/jquery.slidepanel/css/stylesheet.css" />
+
 </head>
-
 <body>
-	<div>
-<div>
-	<nav class="navbar navbar-inverse" role="navigation" style="padding-left:130px;">
-  	<ul class="nav navbar-nav">
-      <li class="active"><a href="/">Home<span class="sr-only">(current)</span></a></li>
-			<li><a href="/settings">Settings</a></li>
-      <li><a href="/light">light</a></li>
-      <li><a href="/aboutUs">About us</a></li>
-      <li><a href="/contactUs">Contact us</a></li>
-    </ul>
-  </nav>  
-</div>
-<br/>
 
-<div class="thumbnail bike_jpg span4">
-  <img data-src="holder.js/200x200" class="img-thumbnail" alt="200x200" src="/pics/pics" data-holder-rendered="true" style="width: 218px; height: 160px;">
+	<!-- SlidePanel -->
+	<div id="slidein-panel">
+		<!-- SlidePanel Button Container -->
+		<div id="slidein-panel-container">
+			<a id="slidein-panel-btn" href="#"><i class="icon-list"></i></a>
+		</div>
+		<!-- /SlidePanel Button Container -->
 
-	<div itemscope="" itemtype="http://schema.org/Organization" class="csc-textpic-text" style="text-align:center;">
-	  <p></p>
-	  <p itemprop="name" class="bodytext">auroraUnicorn</p>
-	  <p class="bodytext">Version: 
-	    <span itemprop="Version">0.0.1</span>
-	    <br>developer: zombinary
-	</p>
+		<!-- SlidePanel Content -->
+		<ul>
+			<li><a href="/"><i class="icon-star"></i>&nbsp; home</a></li>
+			<li><a href="/settings"><i class="icon-gear"></i>&nbsp; settings</a></li>
+			<li><a href="/light"><i class="icon-lightbulb"></i>&nbsp; light</a></li>
+			<!--<li><a href="#"><i class="icon-off"></i>&nbsp; logout</a></li>-->
+		</ul>
+		<!-- /SlidePanel Content -->
 	</div>
-</div>
+	<!-- /SlidePanel -->
+
+	<!-- BOOTSTRAP CONTENT -->
+	<div class="container">
+		<div class="row">
+			<div class="span12">
+				<h1 style="text-align: right">sphere</h1>
+				<p class="bodytext">version: 0.0.2 </p>
+				<p class="bodytext">developer: zombinary </p>
+        	</div>
+		</div>
+	</div>
+
+	<script src="./js/jquery-1.10.0.min.js"></script>
+	<script src="./js/bootstrap/js/bootstrap.min.js"></script>
+	
+	<!-- SlidePanel jQuery -->
+	<script src="./js/jquery.slidepanel/js/jquery.slidepanel.js"></script>
+
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$.SlidePanel();
+		});
+	</script>
 </body>
 </html>
-
-<style type="text/css">
-	.thumbnail.logo_bike {
-    	float: center; 
-	}
-//	.item.active{
-//  	margin: 0px auto; // center
-//  	text-align:center;
-//  	}  
-
-</style>
-
-

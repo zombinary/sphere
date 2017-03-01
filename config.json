@@ -1,7 +1,29 @@
 {
-	"port": 3000,
-	"light":{"clients":[{"ip":"192.168.178.1","name":"kitchen","description":"none"},
-											{"ip":"192.168.178.2","name":"bathroom","description":"none"},
-											{"ip":"192.168.178.3","name":"livingroom 1","description":"none"},
-											{"ip":"192.168.178.4","name":"livingroom 2","description":"none"}]}
+  "port": 3000,
+  "reconnectTime": 3000,
+  "repeat-connect": 3,
+  "light": {
+    "port":80,
+    "server": [
+      {"location": "livingroom",
+        "device": [
+	{"ip": "10.11.0.102",
+        "name": "tv",
+        "description": "rgbStrip - 300pxl ws2812b"
+      
+        },
+	{"ip": "10.11.0.103",
+        "name": "stairs",
+        "description": "rgbStrip - 300pxl ws2812b"
+      
+        }]},
+      {"location": "diningroom",
+          "device": [{
+              "ip": "10.11.0.101",
+          "name": "Test DEVICE",
+          "description": "rgbStrip - 60pxl ws2812b"
+        
+          }]
+        }]
+  }
 }

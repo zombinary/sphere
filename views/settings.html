@@ -1,67 +1,107 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<!--<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />	
+	<title>Responsive Web Mobile - SlidePanel</title>
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-<script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+	<!-- Set the viewport width to device width for mobile -->
+  	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
--->
-	<script src="angular.min.js"></script>
-	<script src="angular-route.min.js"></script>
-	<script src="jquery.min.js"></script>
-	<link rel="stylesheet" href="bootstrap.min.css" />
-	<script src="bootstrap.min.js"></script>
-	<!-- source -->
-	<!--<script src="/views/control.js"></script>-->
+  	<!-- Included Bootstrap CSS Files -->
+	<!--<link rel="stylesheet" href="./js/bootstrap/css/bootstrap.min.css" />-->
+	<!--<link rel="stylesheet" href="./js/bootstrap/css/bootstrap-responsive.min.css" />-->
+	<link href="./bootstrap.min.css" rel="stylesheet">
+		
+		
+	<!-- Includes FontAwesome -->
+	<link rel="stylesheet" href="./css/font-awesome/css/font-awesome.min.css" />
+
+	<!-- SlidePanel Css -->	
+	<link rel="stylesheet" href="./js/jquery.slidepanel/css/stylesheet.css" />
 	
+	<!-- source -->
+	<!--<script src="light.js"></script> -->
+
 	<!-- knockout bind variables-->
-	<!--<script type="text/javascript" src="jquery-1.7.1.min.js"></script>
-  <script type="text/javascript" src="knockout-2.0.0.js"></script> -->
-  <script type='text/javascript' src='knockout-3.4.0.js'></script>
-	<script src="public/knockout/settings.js" type="text/javascript" defer="defer"></script>
+	<script type='text/javascript' src='knockout-3.4.0.js'></script>
+	<script src="public/knockout/kbSettings.js" type="text/javascript" defer="defer"></script>
 </head>
 <body>
-  <div>
-  <div>
-  	<nav class="navbar navbar-inverse" role="navigation" style="padding-left:130px;">
-    	 <ul class="nav navbar-nav">
-        <li><a href="/">Home</a></li>
-        <li class="active"><a href="/settings">Settings<span class="sr-only">(current)</span></a></li>
-        <li><a href="/light">light</a></li>
-        <li><a href="/aboutUs">About us</a></li>
-        <li><a href="/contactUs">Contact us</a></li>
-      </ul>
-		</nav>
+	<!-- SlidePanel -->
+	<div class="slidein-panel" id="slidein-panel">
+		<!-- SlidePanel Button Container -->
+		<div id="slidein-panel-container">
+			<a id="slidein-panel-btn" href="#"><i class="icon-list"></i></a>
 		</div>
-  <div class="jumbotron">
-  	<p>
-			settings
-  	</p>
+		<!-- /SlidePanel Button Container -->
+
+		<!-- SlidePanel Content -->
+		<ul>
+			<li><a href="/"><i class="icon-star"></i>&nbsp; home</a></li>
+			<li><a href="/settings"><i class="icon-gear"></i>&nbsp; settings</a></li>
+			<li><a href="/light"><i class="icon-lightbulb"></i>&nbsp; light</a></li>
+			<!--<li><a href="#"><i class="icon-off"></i>&nbsp; logout</a></li>-->
+		</ul>
+		<!-- /SlidePanel Content -->
 	</div>
-	<div>
-		<table class="table" id="devices_table">
-		  <thead class="thead-inverse">
-		    <tr>
-		      <th>#</th>
-		      <th>ipAddress</th>
-		      <th>name</th>
-		      <th>description</th>
-		    </tr>
-		  </thead>
-		</table>
-		<input id="row" placeholder="new IpAdress"/><button id="irow">+add Client</button><br/><br/>
+	<!-- /SlidePanel -->
+
+	<!-- BOOTSTRAP CONTENT -->
+	<div class="container"">
+		<div class="row">
+			<div class="span12">
+				<h1 style="text-align: right"> settings</h1>
+			</div>
+		</div>
+		<p></p>
 	</div>
+		  <div>
+		  	<table class="table" id="devices_table">
+		  		<thead class="thead-inverse">
+		  			<tr>
+		  				<th>#</th>
+		  				<th>location</th>
+		  				<th>ipAddress</th>
+		  				<th>name</th>
+		  				<th>description</th>
+		  				</tr>
+		  		</thead>
+		  	</table>
+		  	<input id="row" placeholder="new IpAdress"/><button id="irow">+add Client</button><br/><br/>
+		  </div>
+		</div>
+	</div>
+
+	<script src="./js/jquery-1.10.0.min.js"></script>
+	<script src="./js/bootstrap/js/bootstrap.min.js"></script>
+	
+	<!-- SlidePanel jQuery -->
+	<script src="./js/jquery.slidepanel/js/jquery.slidepanel.js"></script>
+
 </body>
 </html>
 
+<style type="text/css">
+	.centerDropdown {
+		left: 50% !important;
+    	margin-left: -70px;
+	}
+.slidein-panel {
+    z-index: 1000;
+}
+h1 {
+margin: 10px 0;
+    font-family: inherit;
+    font-weight: bold;
+    line-height: 20px;
+    color: inherit;
+    text-rendering: optimizelegibility;
+}
+
+</style>
+
 <script type="text/javascript">
-/* add new client */
-//$('#irow').click(function(){
-//    if($('#row').val()){
-//        $('#mtable tbody').append($("#mtable tbody tr:last").clone());
-//        $('#mtable tbody tr:last :checkbox').attr('checked',false);
-//        $('#mtable tbody tr:last td:first').html($('#row').val());
-//    }else{alert('Enter Text');}
-//});
+	$(document).ready(function() {
+		$.SlidePanel();
+	});
 </script>

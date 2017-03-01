@@ -11,9 +11,8 @@ settings.get("/settings/config",function(req,res){
   	}else{
   		var json = JSON.parse(data); 				
 	    res.send(json);  	  
- 		};
+ 	}
   });
- 
 });
 
 module.exports = settings;
