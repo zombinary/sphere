@@ -36,7 +36,7 @@
 			<li><a href="/settings"><i class="icon-gear"></i>&nbsp; settings</a></li>
 			<li><a href="/light"><i class="icon-lightbulb"></i>&nbsp; light</a></li>
 			<!--<li><a href="#"><i class="icon-off"></i>&nbsp; logout</a></li>-->
-		</ul>
+		</ul>		
 		<!-- /SlidePanel Content -->
 	</div>
 	
@@ -78,7 +78,7 @@
 		<div class="form-row well">
 		<label for="sel1">device:</label>
 			<center>
-				<select class="btn btn-default " type="button" id="device_selectBox"  aria-haspopup="true" aria-expanded="true">
+				<select class="btn btn-default " type="button" id="device_selectBox"  aria-haspopup="true" aria-expanded="true" multiple>
 					<span class="caret"></span>
 					<!--<optgroup label="room 1">
 							<option>device 1</option>
@@ -147,9 +147,8 @@
 			</center>
 		</div>
 	</div>
-
-				
 <body>
+
 </html>
 
 <style type="text/css">
@@ -193,12 +192,13 @@ h1 {
     text-rendering: optimizelegibility;
 }    
     
-}
 </style>
 
 <script type="text/javascript">	
+
 $(document).ready(function () { 
-	 $.SlidePanel();
+
+  $.SlidePanel();
 
 
 	var RGBChange = function() {
