@@ -1,6 +1,7 @@
 version 0.0.2
 ============
-	
+
+	- select multiple devices
   - add hue/brightness slider
   - set several devices in 'config.json'
 
