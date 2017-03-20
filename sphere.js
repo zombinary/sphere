@@ -58,7 +58,7 @@ for(var i=0; i<config.light.server.length;i++){
 	}
 }
 
-/* connect to all server */
+/* connect to all clients */
 for(var i=0; i<client.length;i++){
 	util.log('[sphere] connect: '.cyan.bold + client[i].ipAddress.toString().grey+':'.grey+port.toString().grey);
 	client[i].client.connect();
@@ -75,22 +75,32 @@ app.listen(config.port,function(){
 app.post('/tcpSend/', function(req,res) {
 	var msg = {};
 		msg.data = parseInt(req.body.myData).toString(16); // string value
+
+	if(!req.body.ip){
+		util.log('[sphere] tcp send: '.cyan.bold + 'ERROR: '.red  + 'no device selected');
+	}else{
 		msg.ip = req.body.ip;
-			
-	util.log('[sphere] tcp send: '.cyan.bold + msg.data.toString().grey + msg.ip.toString().grey);
-    
-	/* convert int2hex string with fix length of 6chars */
-	var hexstr = '000000';
-	    hexstr = hexstr.slice(msg.data.length);
-	    hexstr = hexstr + msg.data;
-	
-	for(var i=0;i<client.length;i++){
-		if(client[i].ipAddress === msg.ip){
-			util.log('[sphere] send: '.cyan.bold + hexstr.toString().grey+'['.grey +client[i].ipAddress.toString().grey + ']'.grey);
-			client[i].client.send(hexstr);
-			res.send(200);
+		
+		/* convert int2hex string with fix length of 6chars */
+		var hexstr = '000000';
+		    hexstr = hexstr.slice(msg.data.length);
+		    hexstr = hexstr + msg.data;
+		
+	    util.log('[sphere] tcp send: '.cyan.bold + msg.data.toString().grey + ' - ip: '.grey + msg.ip.toString().grey);
+		    
+			    
+		for(var i=0;i<client.length;i++){
+			for(var j=0;j<msg.ip.length;j++){
+				if(client[i].ipAddress === msg.ip[j]){
+					util.log('[sphere] send: '.cyan.bold + hexstr.toString().grey+'['.grey +client[i].ipAddress.toString().grey + ']'.grey);
+					client[i].client.send(hexstr);
+					break;
+				}
+			}
 		}
-	}
+	}		
+	res.send(200);
+	return;
 });
 
 // error handlers
