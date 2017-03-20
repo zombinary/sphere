@@ -1,6 +1,6 @@
 version 0.0.2
 ============
-
+  - add brightness as global value
 	- select multiple devices
   - add hue/brightness slider
   - set several devices in 'config.json'
