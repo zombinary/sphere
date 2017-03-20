@@ -72,28 +72,76 @@ app.listen(config.port,function(){
 });
 
 /* tcp send */
+//app.post('/tcpSend/', function(req,res) {
+//	var msg = {};
+//		msg.data = parseInt(req.body.myData).toString(16); // string value
+//
+//	if(!req.body.ip){
+//		util.log('[sphere] tcp send: '.cyan.bold + 'ERROR: '.red  + 'no device selected');
+//	}else{
+//		msg.ip = req.body.ip;
+//		
+//		/* convert int2hex string with fix length of 6chars */
+//		var hexstr = '000000';
+//		    hexstr = hexstr.slice(msg.data.length);
+//		    hexstr = hexstr + msg.data;
+//		
+//	    util.log('[sphere] tcp send: '.cyan.bold + msg.data.toString().grey + ' - ip: '.grey + msg.ip.toString().grey);
+//		    
+//			    
+//		for(var i=0;i<client.length;i++){
+//			for(var j=0;j<msg.ip.length;j++){
+//				if(client[i].ipAddress === msg.ip[j]){
+//					util.log('[sphere] send: '.cyan.bold + hexstr.toString().grey+'['.grey +client[i].ipAddress.toString().grey + ']'.grey);
+//					client[i].client.send(hexstr);
+//					break;
+//				}
+//			}
+//		}
+//	}		
+//	res.send(200);
+//	return;	
+//});
+
+/* tcp send */
 app.post('/tcpSend/', function(req,res) {
 	var msg = {};
-		msg.data = parseInt(req.body.myData).toString(16); // string value
-
-	if(!req.body.ip){
-		util.log('[sphere] tcp send: '.cyan.bold + 'ERROR: '.red  + 'no device selected');
-	}else{
 		msg.ip = req.body.ip;
+
+	if(!msg.ip){
+		util.log('[sphere] tcp send: '.cyan.bold + 'ERROR: '.red  + 'no device selected'.grey);
+	}else{
 		
 		/* convert int2hex string with fix length of 6chars */
 		var hexstr = '000000';
-		    hexstr = hexstr.slice(msg.data.length);
-		    hexstr = hexstr + msg.data;
 		
-	    util.log('[sphere] tcp send: '.cyan.bold + msg.data.toString().grey + ' - ip: '.grey + msg.ip.toString().grey);
+	    //util.log('[sphere] tcp send: '.cyan.bold + msg.ip.toString().grey);
 		    
 			    
 		for(var i=0;i<client.length;i++){
 			for(var j=0;j<msg.ip.length;j++){
 				if(client[i].ipAddress === msg.ip[j]){
-					util.log('[sphere] send: '.cyan.bold + hexstr.toString().grey+'['.grey +client[i].ipAddress.toString().grey + ']'.grey);
-					client[i].client.send(hexstr);
+
+				    util.log('[sphere] send: '.cyan.bold + hexstr.toString().grey+'['.grey +client[i].ipAddress.toString().grey + ']'.grey);
+				    
+				    hexstr = hexstr.slice(client[i].colour.length);
+				    hexstr = hexstr + client[i].colour;
+				    
+				    if(client[i].brightness){
+				    	var r = (Math.round(((parseInt(client[i].colour,16) >> 16) & 255) / client[i].brightness)) || 0;
+						var g = (Math.round(((parseInt(client[i].colour,16) >> 8) & 255) / client[i].brightness)) || 0;
+						var b = (Math.round((parseInt(client[i].colour,16) & 255) / client[i].brightness)) || 0;
+				
+						var hex_rgb = r;
+							hex_rgb = (hex_rgb << 8) + g;
+							hex_rgb = (hex_rgb << 8) + b; 
+
+						hexstr = '000000';
+					    hexstr = hexstr.slice(hex_rgb.toString(16).length);
+					    hexstr = hexstr + hex_rgb.toString(16);
+				    }
+				    
+				    client[i].client.send(hexstr);
 					break;
 				}
 			}
@@ -102,6 +150,64 @@ app.post('/tcpSend/', function(req,res) {
 	res.send(200);
 	return;
 });
+/* set colour */
+app.post('/setcolour/', function(req,res) {
+	var setcolour = null;
+	var msg = {};
+		msg.colour = parseInt(req.body.colour).toString(16); // string value
+		msg.ip = req.body.ip;
+		
+	if(!msg.ip){
+		util.log('[sphere] set colour: '.cyan.bold + 'ERROR: '.red  + 'no device selected');
+	}else{
+		for(var i=0;i<client.length;i++){
+			for(var j=0;j<msg.ip.length;j++){
+				if(client[i].ipAddress === msg.ip[j]){
+					util.log('[sphere] set colour: '.cyan.bold + msg.colour.toString().grey + ' - ip: '.grey + msg.ip.toString().grey);
+					client[i].colour = msg.colour;
+					setcolour = true;
+					break;
+				}
+			}
+		}
+	}
+	if(!setcolour){
+		util.log('[sphere] set colour: '.cyan.bold + 'ERROR: '.red  + 'could not set colour ip: '.grey + ip.toString().grey);
+	}
+	
+	res.send(200);
+	return;
+});
+
+/* set brightness */
+app.post('/setbrightness/', function(req,res) {
+	var setbrightness = null;
+	var msg = {};
+		msg.brightness = req.body.brightness; // string value
+		msg.ip = req.body.ip;
+		
+	if(!msg.ip){
+		util.log('[sphere] set brightness: '.cyan.bold + 'ERROR: '.red  + 'no device selected');
+	}else{
+		for(var i=0;i<client.length;i++){
+			for(var j=0;j<msg.ip.length;j++){
+				if(client[i].ipAddress === msg.ip[j]){
+					util.log('[sphere] set brightness: '.cyan.bold + msg.brightness.toString().grey + ' - ip: '.grey + msg.ip.toString().grey);
+					client[i].brightness = msg.brightness;
+					setbrightness = true;
+					break;
+				}
+			}
+		}
+	}
+	if(!setbrightness){
+		util.log('[sphere] set brightness: '.cyan.bold + 'ERROR: '.red  + 'could not set colour ip: '.grey + ip.toString().grey);
+	}
+	
+	res.send(200);
+	return;
+});
+
 
 // error handlers
 // development error handler
