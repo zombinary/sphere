@@ -24,7 +24,6 @@ var ViewModel = function(ip) {
 			alert('invalid config - config.json');
 		}  
 	});
-	//return this.config;
 	return;
 };
 ko.applyBindings(new ViewModel("127.0.0.1")); // This makes Knockout get to work
