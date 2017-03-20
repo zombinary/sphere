@@ -3,7 +3,7 @@ function drawData(server){
 	
 	/* location */
 	for (var i=0; i < server.length; i++) {
-		group = $("<optgroup label=\""+ server[i].location+"\"/>");
+		group = $("<optgroup label=\""+ server[i].location+"\" style=\"text-align: right;\"/>");
 		$("#device_selectBox").append(group);
 		for (var j=0; j< server[i].device.length; j++) {  
 			//group.append($("<option>"+ server[i].device[j].name +"</option>"));
