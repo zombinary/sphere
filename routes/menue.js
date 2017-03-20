@@ -15,4 +15,8 @@ menue.get("/settings",function(req,res){
   res.sendFile(path.resolve(__dirname + "/../views/settings.html"));
 });
 
+menue.get("/test",function(req,res){
+   res.sendFile(path.resolve(__dirname + "/../views/test.html"));
+});
+
 module.exports = menue;
