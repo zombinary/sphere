@@ -1,0 +1,46 @@
+var net = require('net');
+var async = require('async');
+var assert = require('assert');
+
+
+var client = new net.Socket();
+client.connect(1313, '127.0.0.1', function() {
+	console.log('Connected');
+	//client.write('hello, aurora');
+});
+
+client.on('data', function(data) {
+	console.log('Received: ' + data.toString('hex'));
+});
+
+client.on('error', function(data) {
+	console.log('error: ' + data);
+});
+
+client.on('close', function() {
+	console.log('Connection closed');
+});
+
+describe('test aurora', function() {
+async.series([
+    function(clbk){
+    	describe('CMD_SETPIXEL', function() {
+    		var CMD_SETPIXEL = new Buffer([0x09,0x00,0x13,0x00,0x00,0x03,0xff,0x00,0x00]);
+    		client.write(CMD_SETPIXEL);
+    		client.on('data', function(data){
+    			assert.equal(data.toString('hex'), '07001300000300');
+    			
+    			if(data.toString('hex') === '07001300000300'){
+    				clbk(false, 'CMD_SETPIXEL done');
+    			}else{
+    				console.log('error: ', data.toString('hex'));
+    				clbk('CMD_SETPIXEL error');
+    			}
+    		});
+    	});
+    }      
+   ],function(err,rslt){
+	console.log('rslt: ', rslt);
+	//client.destroy(); // kill client after server's response
+});
+});

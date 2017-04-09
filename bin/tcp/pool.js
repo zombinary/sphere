@@ -62,14 +62,14 @@ module.exports = {
       		 util.log('[tcp] ['+uid+'] connect://'+ipAddress+':'+port);
       	 }
        });
-       client.on('connectionlost', function(err) {
-          	util.log('[tcp] ['+uid+'] lost://'+ipAddress+':'+port);
-          	
-            connecting = false;
-            setTimeout(function() {
-                obj.connect();
-            }, settings.myTcpReconnectTime||5000);
-          });
+//       client.on('connectionlost', function(err) {
+//          	util.log('[tcp] ['+uid+'] lost://'+ipAddress+':'+port);
+//          	
+//            connecting = false;
+//            setTimeout(function() {
+//                obj.connect();
+//            }, config.general.reconnectTime || 5000);
+//          });
       client.on('disconnect', function() {
       	connecting = false;
         util.log('[tcp] ['+uid+'] disconnect://'+ipAddress+':'+port);
