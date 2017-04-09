@@ -1,7 +1,8 @@
-{
-  "port": 3000,
-  "reconnectTime": 3000,
-  "repeat-connect": 3,
+{ "general": {
+	"port": 3000,
+	"reconnectInervalTime": 10000,
+	"reconnectTime": 3000,
+	"rechableCount": 3},
   "light": {
     "port":80,
     "server": [
@@ -22,7 +23,6 @@
               "ip": "10.11.0.101",
           "name": "Test DEVICE",
           "description": "rgbStrip - 60pxl ws2812b"
-        
           }]
         }]
   }

@@ -1,5 +1,12 @@
+version 0.0.3
+============
+  - add aurora API
+  
 version 0.0.2
 ============
+  - add mocha testscripts
+  - change debug logout
+  - change color value hexstring ==> hex buffer
   - add brightness as global value
 	- select multiple devices
   - add hue/brightness slider

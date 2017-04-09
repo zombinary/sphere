@@ -18,8 +18,7 @@ var config = require('./config.json');
 
 /* tcp connection */
 //var ipAddress = '10.11.0.100';
-var port = 80;
-var TCP = require('./bin/tcp/pool');
+var tcp = require('./bin/tcp/pool');
 var client = [];
 
 var log = require('./lib/debug/logging');
@@ -53,126 +52,123 @@ app.use(express.static(__dirname + '/node_modules/bootstrap-slider/src')); //sli
 
 for(var i=0; i<config.light.server.length;i++){
 	for(var j=0; j<config.light.server[i].device.length;j++){
-		util.log('[sphere] add: '.cyan.bold +config.light.server[i].device[j].ip.toString().grey+':'.grey+port.toString().grey);
-		client.push({ ipAddress: config.light.server[i].device[j].ip, client: TCP.get(config.light.server[i].device[j].ip, port)});
+		log.debug(log.getLineNumber(), log.getFileName(), 'add: ' + config.light.server[i].device[j].ip+':'+ config.light.port);	
+		client.push({ ipAddress: config.light.server[i].device[j].ip, client: tcp.get(config.light.server[i].device[j].ip, config.light.port)});
 	}
 }
 
 /* connect to all clients */
 for(var i=0; i<client.length;i++){
-	util.log('[sphere] connect: '.cyan.bold + client[i].ipAddress.toString().grey+':'.grey+port.toString().grey);
+	log.debug(log.getLineNumber(), log.getFileName(), 'connect: ' + client[i].ipAddress+':'+ config.light.port);	
 	client[i].client.connect();
 }
 
 
 
 /* create http server */
-app.listen(config.port,function(){
-  util.log('[sphere] runs on: '.green.bold + 'localhost:'.grey + config.port.toString().grey);
+app.listen(config.general.port,function(){
+  log.debug(log.getLineNumber(), log.getFileName(), 'runs on: localhost: ' + config.general.port);	
 });
-
-/* tcp send */
-//app.post('/tcpSend/', function(req,res) {
-//	var msg = {};
-//		msg.data = parseInt(req.body.myData).toString(16); // string value
-//
-//	if(!req.body.ip){
-//		util.log('[sphere] tcp send: '.cyan.bold + 'ERROR: '.red  + 'no device selected');
-//	}else{
-//		msg.ip = req.body.ip;
-//		
-//		/* convert int2hex string with fix length of 6chars */
-//		var hexstr = '000000';
-//		    hexstr = hexstr.slice(msg.data.length);
-//		    hexstr = hexstr + msg.data;
-//		
-//	    util.log('[sphere] tcp send: '.cyan.bold + msg.data.toString().grey + ' - ip: '.grey + msg.ip.toString().grey);
-//		    
-//			    
-//		for(var i=0;i<client.length;i++){
-//			for(var j=0;j<msg.ip.length;j++){
-//				if(client[i].ipAddress === msg.ip[j]){
-//					util.log('[sphere] send: '.cyan.bold + hexstr.toString().grey+'['.grey +client[i].ipAddress.toString().grey + ']'.grey);
-//					client[i].client.send(hexstr);
-//					break;
-//				}
-//			}
-//		}
-//	}		
-//	res.send(200);
-//	return;	
-//});
 
 /* tcp send */
 app.post('/tcpSend/', function(req,res) {
 	var msg = {};
 		msg.ip = req.body.ip;
-
+	var buf = new Buffer ([null,null,null]);	
+	
 	if(!msg.ip){
-		util.log('[sphere] tcp send: '.cyan.bold + 'ERROR: '.red  + 'no device selected'.grey);
+	 log.error(log.getLineNumber(), log.getFileName(), 'no device selected');	
 	}else{
-		
-		/* convert int2hex string with fix length of 6chars */
-		var hexstr = '000000';
-		
-	    //util.log('[sphere] tcp send: '.cyan.bold + msg.ip.toString().grey);
-		    
-			    
+
 		for(var i=0;i<client.length;i++){
 			for(var j=0;j<msg.ip.length;j++){
 				if(client[i].ipAddress === msg.ip[j]){
+				    log.debug(log.getLineNumber(), log.getFileName(), 'send: ' + client[i].color + '[' +client[i].ipAddress + ']');	
+					console.log('client.color: '.red.bold, client[i].color);
 
-				    util.log('[sphere] send: '.cyan.bold + hexstr.toString().grey+'['.grey +client[i].ipAddress.toString().grey + ']'.grey);
-				    
-				    hexstr = hexstr.slice(client[i].colour.length);
-				    hexstr = hexstr + client[i].colour;
-				    
 				    if(client[i].brightness){
-				    	var r = (Math.round(((parseInt(client[i].colour,16) >> 16) & 255) / client[i].brightness)) || 0;
-						var g = (Math.round(((parseInt(client[i].colour,16) >> 8) & 255) / client[i].brightness)) || 0;
-						var b = (Math.round((parseInt(client[i].colour,16) & 255) / client[i].brightness)) || 0;
-				
-						var hex_rgb = r;
-							hex_rgb = (hex_rgb << 8) + g;
-							hex_rgb = (hex_rgb << 8) + b; 
 
-						hexstr = '000000';
-					    hexstr = hexstr.slice(hex_rgb.toString(16).length);
-					    hexstr = hexstr + hex_rgb.toString(16);
+				    	buf[0] = Math.round(((client[i].color >> 16) & 0xff) *3 / client[i].brightness) || 0;
+				    	buf[1] = Math.round(((client[i].color >> 8) & 0xff) *3 / client[i].brightness) || 0;
+				    	buf[2] = Math.round((client[i].color & 0xff) *3 / client[i].brightness) || 0;
+							
+				    }else{
+						//self.client.write(data);
+					  	
+					  	buf[0] = (client[i].color & 0xff0000) >> 16;
+					  	buf[1] = (client[i].color & 0x00ff00) >> 8;
+					  	buf[2] = client[i].color & 0x0000ff;
+					    
+					  	console.log(typeof client[i].color);
+					  	console.log((client[i].color >> 16) & 0xff);
+					  	console.log((client[i].color >> 8) & 0xff);
+					  	console.log(client[i].color & 0xff);
+					  	//console.log(buf[2]);
+				    	
 				    }
 				    
-				    client[i].client.send(hexstr);
+				    client[i].client.send(buf);
 					break;
 				}
 			}
 		}
+		
+//		/* convert int2hex string with fix length of 6chars */
+//		var hexstr = '000000';
+//		//util.log('[sphere] tcp send: '.cyan.bold + msg.ip.toString().grey);
+//		for(var i=0;i<client.length;i++){
+//			for(var j=0;j<msg.ip.length;j++){
+//				if(client[i].ipAddress === msg.ip[j]){
+//				    log.debug(log.getLineNumber(), log.getFileName(), 'send: ' + hexstr + '[' +client[i].ipAddress + ']');	
+//				    hexstr = hexstr.slice(client[i].colour.length);
+//				    hexstr = hexstr + client[i].colour;
+//				    if(client[i].brightness){
+//				    	var r = (Math.round(((parseInt(client[i].colour,16) >> 16) & 255) / client[i].brightness)) || 0;
+//						var g = (Math.round(((parseInt(client[i].colour,16) >> 8) & 255) / client[i].brightness)) || 0;
+//						var b = (Math.round((parseInt(client[i].colour,16) & 255) / client[i].brightness)) || 0;
+//				
+//						var hex_rgb = r;
+//							hex_rgb = (hex_rgb << 8) + g;
+//							hex_rgb = (hex_rgb << 8) + b; 
+//
+//						hexstr = '000000';
+//					    hexstr = hexstr.slice(hex_rgb.toString(16).length);
+//					    hexstr = hexstr + hex_rgb.toString(16);
+//				    }
+//				    
+//				    client[i].client.send(hexstr);
+//					break;
+//				}
+//			}
+//		}
 	}		
 	res.send(200);
 	return;
 });
-/* set colour */
-app.post('/setcolour/', function(req,res) {
-	var setcolour = null;
+/* set color */
+app.post('/setcolor/', function(req,res) {
+	var setcolor = null;
 	var msg = {};
-		msg.colour = parseInt(req.body.colour).toString(16); // string value
+		//msg.color = parseInt(req.body.colour).toString(16); // string value
+		msg.color = req.body.color; // string value
 		msg.ip = req.body.ip;
 		
 	if(!msg.ip){
-		util.log('[sphere] set colour: '.cyan.bold + 'ERROR: '.red  + 'no device selected');
+	    log.debug(log.getLineNumber(), log.getFileName(), 'no device selected');	
 	}else{
 		for(var i=0;i<client.length;i++){
 			for(var j=0;j<msg.ip.length;j++){
 				if(client[i].ipAddress === msg.ip[j]){
-					util.log('[sphere] set colour: '.cyan.bold + msg.colour.toString().grey + ' - ip: '.grey + msg.ip.toString().grey);
-					client[i].colour = msg.colour;
-					setcolour = true;
+					log.debug(log.getLineNumber(), log.getFileName(), 'set color: '.cyan.bold + msg.color + ' - ip: ' + msg.ip);	
+					client[i].color = msg.color;
+					setcolor = true;
 					break;
 				}
 			}
 		}
 	}
-	if(!setcolour){
-		util.log('[sphere] set colour: '.cyan.bold + 'ERROR: '.red  + 'could not set colour ip: '.grey + ip.toString().grey);
+	if(!setcolor){
+	    log.error(log.getLineNumber(), log.getFileName(), 'could not set color ip: ' + ip);	
 	}
 	
 	res.send(200);
@@ -187,12 +183,13 @@ app.post('/setbrightness/', function(req,res) {
 		msg.ip = req.body.ip;
 		
 	if(!msg.ip){
-		util.log('[sphere] set brightness: '.cyan.bold + 'ERROR: '.red  + 'no device selected');
+		log.error(log.getLineNumber(), log.getFileName(), 'no device selected');	
 	}else{
 		for(var i=0;i<client.length;i++){
 			for(var j=0;j<msg.ip.length;j++){
 				if(client[i].ipAddress === msg.ip[j]){
-					util.log('[sphere] set brightness: '.cyan.bold + msg.brightness.toString().grey + ' - ip: '.grey + msg.ip.toString().grey);
+					log.debug(log.getLineNumber(), log.getFileName(), 'set brightness: ' + msg.brightness + ' - ip: '.grey + msg.ip);	
+
 					client[i].brightness = msg.brightness;
 					setbrightness = true;
 					break;
@@ -201,7 +198,7 @@ app.post('/setbrightness/', function(req,res) {
 		}
 	}
 	if(!setbrightness){
-		util.log('[sphere] set brightness: '.cyan.bold + 'ERROR: '.red  + 'could not set colour ip: '.grey + ip.toString().grey);
+		log.error(log.getLineNumber(), log.getFileName(), 'could not set brightness ip: '.grey + ip);
 	}
 	
 	res.send(200);
