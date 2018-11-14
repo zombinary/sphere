@@ -1,0 +1,7 @@
+#CURRENT=$(dirname "$0")/../
+#CURRENT=$(dirname "$0")
+CURRENT=/home/pi/sphere/
+cd "$CURRENT"
+
+#java -jar /home/pi/pixelcontroller-distribution-2.0.0/PixelController.jar
+node $CURRENT/sphere.js

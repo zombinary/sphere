@@ -20,7 +20,7 @@
 	
 	<!-- knockout bind variables-->
 	<script type='text/javascript' src='knockout-3.4.0.js'></script>
-	<script src="public/knockout/kbLight.js" type="text/javascript" defer="defer"></script>
+	<script src="public/knockout/kbRemote.js" type="text/javascript" defer="defer"></script>
 	
 		<!-- SlidePanel -->
 	<div class="slidein-panel" id="slidein-panel">
@@ -32,9 +32,11 @@
 
 		<!-- SlidePanel Content -->
 		<ul>
-			<li><a href="/"><i class="icon-star"></i>&nbsp; home</a></li>
+			<li><a href="/"><i class="icon-globe"></i>&nbsp; home</a></li>
 			<li><a href="/settings"><i class="icon-gear"></i>&nbsp; settings</a></li>
-			<li><a href="/light"><i class="icon-lightbulb"></i>&nbsp; light</a></li>
+			<li><a href="/remote"><i class="icon-lightbulb"></i>&nbsp; remote</a></li>
+			<li><a href="/presets"><i class="icon-star"></i>&nbsp; presets</a></li>
+			<li><a href="/effects"><i class="icon-fire"></i>&nbsp; effects</a></li>
 			<!--<li><a href="#"><i class="icon-off"></i>&nbsp; logout</a></li>-->
 		</ul>		
 		<!-- /SlidePanel Content -->
@@ -50,7 +52,7 @@
 		<script type="text/javascript" src="dependencies/js/modernizr.js"></script>
 		<script type="text/javascript" src="js/bootstrap-slider.js"></script>
 		<!-- source -->
-		<script src="light.js"></script>
+		<script src="remote.js"></script>
 		<script src="slider-color.js"></script>
 		
 		<!-- do not use this with slider
@@ -67,30 +69,31 @@
 		<div class="container"">
 			<div class="row">
 				<div class="span12">
-					<h1 style="text-align: right">light</h1>
+					<h1 style="text-align: right">remote</h1>
 	    		</div>
 			</div>
 			<p></p>
 		</div>
 	
 			
-				<div class="container"">
-		<div class="form-row well">
-		<label for="sel1">device:</label>
-			<center>
-				<select class="btn btn-default " type="button" id="device_selectBox"  aria-haspopup="true" aria-expanded="true" multiple>
+		<div class="container"">
+			<div class="form-row well">
+				<label for="sel1">device:</label>
+				<center>
+					<select class="btn btn-default " type="button" id="device_selectBox"  aria-haspopup="true" aria-expanded="true" multiple>
 					<span class="caret"></span>
-					<!--<optgroup label="room 1">
+						<!--<optgroup label="room 1">
 							<option>device 1</option>
 							<option>device 2</option>
 							<option>device 3</option>
-						</optgroup>
+							</optgroup>
 						<optgroup label="room 2">
 							<option>test 1</option>
 							<option>test 2</option>
-					</optgroup>-->
-				</select>
-			</center>
+							</optgroup>-->
+					</select>
+				</center>
+			</div>
 		</div>
 		
 		<div class="form-row well">
@@ -147,6 +150,25 @@
 			</center>
 		</div>
 	</div>
+	
+	<div class="container">
+		<div class="form-row well">
+			<label for="sel1">range:</label>
+			<center>
+				<button type="button" id="rangeleftminus" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off">-</button>
+				<button type="button" id="rangeleftplus" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off">+</button>
+			</center>
+			<center>
+				<b>0</b> <input id="slider_range" type="text" class="span2" value="" data-slider-min="0" data-slider-max="300" data-slider-step="1" data-slider-value="[0,300]"/> 
+				<b>300</b>
+			</center>
+			<center>
+				<button type="button" id="rangerigthminus" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off">-</button>
+				<button type="button" id="rangerigthplus" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off">+</button>	
+			</center>
+		</div>
+	</div>	
+	
 <body>
 
 </html>
@@ -196,25 +218,64 @@ h1 {
 
 <script type="text/javascript">	
   function btn_sendColor(color){
-	  setcolour(color,$('#device_selectBox').val());
-	  send2tcp($('#device_selectBox').val());
+    setcolor(color,$('#device_selectBox').val());
+    setcolor_req($('#device_selectBox').val());
   };
 
 $(document).ready(function () { 
 
   $.SlidePanel();
+  
+  $('#rangeleftplus').click(function(){
+	  	var range = ran.getValue();
+	  		range[0] = range[0] + 1;
+		if(range[0] >= 300){ range[0] = 300;}
+    setrange_req(range,$('#device_selectBox').val());
+		return;
+  });
+  $('#rangeleftminus').click(function(){
+	  	var range = ran.getValue();
+	  		range[0] = range[0] - 1;
+	  	if(range[0] <= 0){ range[0] = 0;}	
+	  		setrange_req(range,$('#device_selectBox').val());
+		return;
+  });
+  $('#rangerigthplus').click(function(){
+	  	var range = ran.getValue();
+	  		range[1] = range[1] + 1;
+		if(range[1] >= 300){ range[1] = 300;}
+		setrange_req(range,$('#device_selectBox').val());
+		return;
+  });
+  $('#rangerigthminus').click(function(){
+    	var range = ran.getValue();
+	  		range[1] = range[1] - 1;
+	  	if(range[1] <= 0){ range[1] = 0;}	
+	  		setrange_req(range,$('#device_selectBox').val());
+		return;
+  });
  
 	var RGBChange = function() {
-		setcolour(hue[rgb.getValue()], $('#device_selectBox').val());
-		send2tcp($('#device_selectBox').val());
-	
+		var obj = {};
+			obj.cmd = 0x15; //CMD_SETCOLOR
+			obj.port = 0;
+		
+		setcolor(hue[rgb.getValue()], $('#device_selectBox').val());
+		setcolor_req($('#device_selectBox').val(),obj);
 		return hue[rgb.getValue()];
 	};
 	
 	var RGBbrightness = function() {
-		var brightness = ui.getValue();
+		var brightness = brightn.getValue();
 		setbrightness(brightness, $('#device_selectBox').val());
-		send2tcp($('#device_selectBox').val());
+		setcolor_req($('#device_selectBox').val());
+		
+		return;
+	};
+	
+	var RGBrange = function(){
+		var range = ran.getValue();
+		setrange_req(range,$('#device_selectBox').val());
 		return;
 	};
 
@@ -222,9 +283,14 @@ $(document).ready(function () {
 		.on('slide', RGBChange)
 		.data('slider');
 		
-	var ui = $('#slider_brightness').slider()
+	var brightn = $('#slider_brightness').slider()
 		.on('slide', RGBbrightness)
-		.data('slider');	
+		.data('slider');
+		
+	var ran = $('#slider_range').slider()
+		.on('slide',RGBrange)
+		.data('slider');			
+
 		
 });
 

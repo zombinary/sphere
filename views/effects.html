@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />	
+	<title>Responsive Web Mobile - SlidePanel</title>
+
+	<!-- Set the viewport width to device width for mobile -->
+  	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  	<!-- Included Bootstrap CSS Files -->
+	<!--<link rel="stylesheet" href="./js/bootstrap/css/bootstrap.min.css" />-->
+	<!--<link rel="stylesheet" href="./js/bootstrap/css/bootstrap-responsive.min.css" />-->
+	<link href="./bootstrap.min.css" rel="stylesheet">
+		
+		
+	<!-- Includes FontAwesome -->
+	<link rel="stylesheet" href="./css/font-awesome/css/font-awesome.min.css" />
+
+	<!-- SlidePanel Css -->	
+	<link rel="stylesheet" href="./js/jquery.slidepanel/css/stylesheet.css" />
+	
+	<!-- knockout bind variables-->
+	<script type='text/javascript' src='knockout-3.4.0.js'></script>
+	<script src="public/knockout/kbEffects.js" type="text/javascript" defer="defer"></script>
+	
+		<!-- SlidePanel -->
+	<div class="slidein-panel" id="slidein-panel">
+		<!-- SlidePanel Button Container -->
+		<div id="slidein-panel-container">
+			<a id="slidein-panel-btn" href="#"><i class="icon-list"></i></a>
+		</div>
+		<!-- /SlidePanel Button Container -->
+
+		<!-- SlidePanel Content -->
+		<ul>
+			<li><a href="/"><i class="icon-globe"></i>&nbsp; home</a></li>
+			<li><a href="/settings"><i class="icon-gear"></i>&nbsp; settings</a></li>
+			<li><a href="/remote"><i class="icon-lightbulb"></i>&nbsp; remote</a></li>
+			<li><a href="/presets"><i class="icon-star"></i>&nbsp; presets</a></li>
+			<li><a href="/effects"><i class="icon-fire"></i>&nbsp; effects</a></li>
+			<!--<li><a href="#"><i class="icon-off"></i>&nbsp; logout</a></li>-->
+		</ul>		
+		<!-- /SlidePanel Content -->
+	</div>
+	
+		<script src="angular.min.js"></script>
+		<script src="angular-route.min.js"></script>
+		<script src="jquery.min.js"></script>
+
+		<!-- slider -->
+		<link href="dependencies/css/bootstrap.min.css" rel="stylesheet">
+		<link href="css/bootstrap-slider.css" rel="stylesheet">
+		<script type="text/javascript" src="dependencies/js/modernizr.js"></script>
+		<script type="text/javascript" src="js/bootstrap-slider.js"></script>
+		<!-- source -->
+		<script src="remote.js"></script>
+		<script src="slider-color.js"></script>
+		
+		<!-- do not use this with slider
+			<script src="./js/jquery-1.10.0.min.js"></script>
+			<script src="./js/bootstrap/js/bootstrap.min.js"></script>
+		-->
+		<!-- SlidePanel jQuery -->
+		<script src="./js/jquery.slidepanel/js/jquery.slidepanel.js"></script>
+	
+	<head>
+<body>
+
+
+	<!-- BOOTSTRAP CONTENT -->
+	<div class="container">
+		<div class="row">
+			<div class="span12">
+				<h1 style="text-align: right">effects</h1>
+        	</div>
+		</div>
+	</div>
+	
+	<div class="container"">
+		<div class="form-row well">
+			<label for="sel1">effect:</label>
+			<center>
+				<select class="btn btn-default " type="button" id="device_selectBox_effects"  aria-haspopup="true" aria-expanded="true">
+				</select>
+			</center>
+		</div>
+	</div>
+	
+	<div class="container"">
+		<div class="form-row well">
+			<label for="sel1">menu:</label>
+			<center>
+				<button type="button" class="btn btn-default" id="btn_set_effect">run</button>
+				<button type="button" class="btn btn-default" id="btn_stop_effect">stop</button>
+			</center>
+		</div>
+	</div>		
+		
+</body>
+<script type="text/javascript">	
+$(document).ready(function () { 
+
+  $.SlidePanel();
+  
+  $( "#btn_set_effect" ).click(function() {
+	  //alert( "Handler for .click() called." );
+	  //setPreset();
+	  var obj = {};
+          obj.file = $("#device_selectBox_effects").val() || 0;
+        
+        $.ajax({
+                url: '/runEffect/',
+                type: 'POST',
+                data: JSON.stringify(obj),
+                contentType: 'application/json',
+                success: function (msg){
+                        console.log('success: ' , msg.toString());
+                },error: function (xhr, status, error) {
+                        console.log('Error: ' + error);
+                },
+        });
+  });
+  
+    $( "#btn_stop_effect" ).click(function() {
+        $.ajax({
+                url: '/stopEffect/',
+                type: 'POST',
+                data: '',
+                contentType: 'application/json',
+                success: function (msg){
+                        console.log('success: ' , msg.toString());
+                },error: function (xhr, status, error) {
+                        console.log('Error: ' + error);
+                },
+        });
+  });
+
+});
+</script>
+</html>

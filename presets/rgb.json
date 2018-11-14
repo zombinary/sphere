@@ -1,0 +1,52 @@
+{
+  "name": "RGB test stripe",
+  "device": [
+    {
+      "ip": "10.11.0.101",
+      "pixel": "15",
+      "pin": [
+        {
+          "nbPin": 0,
+          "color": [],
+          "pixel": [],
+          "element": [
+            {
+              "range": [
+                0,
+                4
+              ],
+              "color": [
+                255,
+                0,
+                0
+              ]
+            },
+            {
+              "range": [
+                5,
+                9
+              ],
+              "color": [
+                0,
+                255,
+                0
+              ]
+            },
+            {
+              "range": [
+                10,
+                14
+              ],
+              "color": [
+                0,
+                0,
+                255
+              ]
+            }
+          ]
+        }
+      ],
+      "NbOfPins": 2
+    }
+  ]
+}

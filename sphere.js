@@ -2,6 +2,7 @@ require('colors');
 var util = require("util");
 var express = require('express');
 var app = express();
+var assert = require('assert');
 
 var fs    = require("fs");
 var path = require('path');
@@ -14,12 +15,16 @@ var engines = require('consolidate');
 var menue = require('./routes/menue');
 var settings = require('./routes/settings');
 
-var config = require('./config.json');
+var aurora_server = require('gravity-aurora');
+//var config = require('./config.json');
+var CONFIG = require('./lib/configManager');
+var config = new CONFIG(__dirname + '/config.json');
+var presets = require('./lib/presets');
+var effects = require('./lib/effects');
+var clients = [];
 
 /* tcp connection */
 //var ipAddress = '10.11.0.100';
-var tcp = require('./bin/tcp/pool');
-var client = [];
 
 var log = require('./lib/debug/logging');
 
@@ -35,7 +40,7 @@ app.use(cookieParser());
 
 /* routes */
 app.use('/', menue);
-app.use('/', settings);
+app.use('/settings', settings);
 
 /* bootstrap, libs & stylesheets */
 app.use(express.static(__dirname + '/'));
@@ -46,162 +51,299 @@ app.use(express.static(__dirname + '/node_modules/bootstrap-slider/')); //slider
 app.use(express.static(__dirname + '/node_modules/bootstrap-slider/dist')); //slider
 app.use(express.static(__dirname + '/node_modules/bootstrap-slider/src')); //slider
 
-
-//app.use(express.static(__dirname + '/public/images'));
-
-
-for(var i=0; i<config.light.server.length;i++){
-	for(var j=0; j<config.light.server[i].device.length;j++){
-		log.debug(log.getLineNumber(), log.getFileName(), 'add: ' + config.light.server[i].device[j].ip+':'+ config.light.port);	
-		client.push({ ipAddress: config.light.server[i].device[j].ip, client: tcp.get(config.light.server[i].device[j].ip, config.light.port)});
-	}
+if(Array.isArray(config.light.devices)){
+for(var i=0; i<config.light.devices.length;i++){
+	var dev = config.light.devices[i];
+	if(!dev.ip){console.log('ERROR: '.red.bold, 'could not add device with no ip'); continue;}
+	if(!dev.port){console.log('ERROR: '.red.bold, 'could not add device with no port'); continue;}
+	log.debug(log.getLineNumber(), log.getFileName(), 'add: ' + dev.ip+':'+ dev.port);	
+	clients.push({ipAddress: dev.ip, 
+                port: dev.port,
+                id: dev.id, 
+                aurora: new aurora_server(dev.ip, dev.port)});
 }
-
-/* connect to all clients */
-for(var i=0; i<client.length;i++){
-	log.debug(log.getLineNumber(), log.getFileName(), 'connect: ' + client[i].ipAddress+':'+ config.light.port);	
-	client[i].client.connect();
 }
-
-
+var UIPORT = config.ui.port || '3000'; // port from sphere
 
 /* create http server */
-app.listen(config.general.port,function(){
-  log.debug(log.getLineNumber(), log.getFileName(), 'runs on: localhost: ' + config.general.port);	
+app.listen(UIPORT,function(){
+  log.debug(log.getLineNumber(), log.getFileName(), 'runs on: localhost: ' + UIPORT);	
+});
+
+app.get("/settings/config",function(req,res){
+  //res.sendFile(path.resolve(__dirname + "/../config.json"));
+    res.send(config);
 });
 
 /* tcp send */
-app.post('/tcpSend/', function(req,res) {
+app.post('/setcolor_req/', function(req,res) {
+	try{
 	var msg = {};
-		msg.ip = req.body.ip;
-	var buf = new Buffer ([null,null,null]);	
+		msg.id = req.body.deviceId;
+		//msg.data = req.body.data;
+	var done = null;
+	var buf = new Buffer([null,null,null]);
+	var port = 0;
+	var done = false;
 	
-	if(!msg.ip){
-	 log.error(log.getLineNumber(), log.getFileName(), 'no device selected');	
+	log.debug(log.getLineNumber(), log.getFileName(), 'POST: /setcolor_req/');	
+	
+	if(!Array.isArray(msg.id)){
+    var err = 'no device selected';
+	 log.error(log.getLineNumber(), log.getFileName(), err);	
+		res.status(500).send({ error: err});
 	}else{
+		for(var i=0;i<clients.length;i++){
+			var c = clients[i];
+			if(c.color === 'undefined'){log.warn(log.getLineNumber(), log.getFileName(), 'undefined color'); continue;}
+			for(var j=0;j<msg.id.length;j++){
+				if(c.id === msg.id[j]){
+				    log.debug(log.getLineNumber(), log.getFileName(), 'send: ' + c.color + '[' + c.ipAddress + ']');	
+				    if(c.brightness){
 
-		for(var i=0;i<client.length;i++){
-			for(var j=0;j<msg.ip.length;j++){
-				if(client[i].ipAddress === msg.ip[j]){
-				    log.debug(log.getLineNumber(), log.getFileName(), 'send: ' + client[i].color + '[' +client[i].ipAddress + ']');	
-					console.log('client.color: '.red.bold, client[i].color);
-
-				    if(client[i].brightness){
-
-				    	buf[0] = Math.round(((client[i].color >> 16) & 0xff) *3 / client[i].brightness) || 0;
-				    	buf[1] = Math.round(((client[i].color >> 8) & 0xff) *3 / client[i].brightness) || 0;
-				    	buf[2] = Math.round((client[i].color & 0xff) *3 / client[i].brightness) || 0;
-							
+				    	buf[0] = Math.round(((c.color >> 16) & 0xff) *3 / c.brightness) || 0;
+				    	buf[1] = Math.round(((c.color >> 8) & 0xff) *3 / c.brightness) || 0;
+				    	buf[2] = Math.round((c.color & 0xff) *3 / c.brightness) || 0;
 				    }else{
 						//self.client.write(data);
-					  	
-					  	buf[0] = (client[i].color & 0xff0000) >> 16;
-					  	buf[1] = (client[i].color & 0x00ff00) >> 8;
-					  	buf[2] = client[i].color & 0x0000ff;
-					    
-					  	console.log(typeof client[i].color);
-					  	console.log((client[i].color >> 16) & 0xff);
-					  	console.log((client[i].color >> 8) & 0xff);
-					  	console.log(client[i].color & 0xff);
-					  	//console.log(buf[2]);
-				    	
+					  	buf[0] = (c.color & 0xff0000) >> 16;
+					  	buf[1] = (c.color & 0x00ff00) >> 8;
+					  	buf[2] = c.color & 0x0000ff;
 				    }
 				    
-				    client[i].client.send(buf);
+				    c.aurora.setColor(buf, port,function(err,rslt){
+						if(!err){
+							done = true;
+							//res.send(200); //(node:2516) UnhandledPromiseRejectionWarning: Error: Can't set headers after they are sent.
+							log.debug(log.getLineNumber(), log.getFileName(), 'send to aurora');	
+						}else{
+							log.error(log.getLineNumber(), log.getFileName(), 'error: ' + err);
+						}
+					});
+
+				}
+			}
+			if(done){
+				break;
+			}
+		}
+	}
+	if(!done){
+    res.status(500).send({ error: 'color is undefined'});
+  }else{
+    res.status(200).send();
+  }
+	return;
+	}catch(e){
+	console.log('ERROR'.red.bold, e);
+}
+});
+
+app.post('/setrange_req/', function(req,res) {
+	try{
+	var msg = {};
+		msg.range = req.body.range;
+		msg.id = req.body.deviceId;
+			
+	var port = 0x00;
+	var buf = new Buffer([null,null,null]);
+	
+	if(!Array.isArray(msg.id)){
+      var err = 'no device selected';
+	    log.debug(log.getLineNumber(), log.getFileName(), err);	
+	    res.status(500).send({ error: err});
+	}else{
+		for(var i=0;i<clients.length;i++){
+			var c = clients[i];
+			for(var j=0;j<msg.id.length;j++){
+				if(c.id === msg.id[j]){
+					log.debug(log.getLineNumber(), log.getFileName(), 'set range: '.cyan.bold + msg.range[0] +'-'+ msg.range[1] +'color: '+ c.color + ' - ip: '.grey + c.ipAddress +':'+ c.port + ' - id: '.grey + msg.id);	
+					 c.range = msg.range;
+					 
+					if(c.brightness){
+
+					   	buf[0] = Math.round(((c.color >> 16) & 0xff) *3 / c.brightness) || 0;
+					   	buf[1] = Math.round(((c.color >> 8) & 0xff) *3 / c.brightness) || 0;
+					   	buf[2] = Math.round((c.color & 0xff) *3 / c.brightness) || 0;
+								
+					}else{
+						//self.client.write(data);
+						buf[0] = (c.color & 0xff0000) >> 16;
+					  	buf[1] = (c.color & 0x00ff00) >> 8;
+					 	buf[2] = c.color & 0x0000ff;
+						    
+					    	
+					 }
+					c.aurora.clearPixel(function(err){
+						if(!err){
+							c.aurora.setRange(buf, port, msg.range[0], msg.range[1],function(err){
+								if(!err){
+									log.debug(log.getLineNumber(), log.getFileName(), 'send to aurora');	
+									res.status(200).send();
+								}else{
+									log.error(log.getLineNumber(), log.getFileName(), 'error: ' + err);
+									res.status(500).send({ error: err});
+								}
+							});
+						}else{
+							log.error(log.getLineNumber(), log.getFileName(), 'error: ' + err);
+							res.status(500).send({ error: err});
+						}
+					});	
 					break;
 				}
 			}
 		}
-		
-//		/* convert int2hex string with fix length of 6chars */
-//		var hexstr = '000000';
-//		//util.log('[sphere] tcp send: '.cyan.bold + msg.ip.toString().grey);
-//		for(var i=0;i<client.length;i++){
-//			for(var j=0;j<msg.ip.length;j++){
-//				if(client[i].ipAddress === msg.ip[j]){
-//				    log.debug(log.getLineNumber(), log.getFileName(), 'send: ' + hexstr + '[' +client[i].ipAddress + ']');	
-//				    hexstr = hexstr.slice(client[i].colour.length);
-//				    hexstr = hexstr + client[i].colour;
-//				    if(client[i].brightness){
-//				    	var r = (Math.round(((parseInt(client[i].colour,16) >> 16) & 255) / client[i].brightness)) || 0;
-//						var g = (Math.round(((parseInt(client[i].colour,16) >> 8) & 255) / client[i].brightness)) || 0;
-//						var b = (Math.round((parseInt(client[i].colour,16) & 255) / client[i].brightness)) || 0;
-//				
-//						var hex_rgb = r;
-//							hex_rgb = (hex_rgb << 8) + g;
-//							hex_rgb = (hex_rgb << 8) + b; 
-//
-//						hexstr = '000000';
-//					    hexstr = hexstr.slice(hex_rgb.toString(16).length);
-//					    hexstr = hexstr + hex_rgb.toString(16);
-//				    }
-//				    
-//				    client[i].client.send(hexstr);
-//					break;
-//				}
-//			}
-//		}
-	}		
-	res.send(200);
+	}
 	return;
+}catch(e){
+	console.log('ERROR'.red.bold, e);
+}
+
 });
+
 /* set color */
 app.post('/setcolor/', function(req,res) {
+	try{
 	var setcolor = null;
 	var msg = {};
 		//msg.color = parseInt(req.body.colour).toString(16); // string value
 		msg.color = req.body.color; // string value
-		msg.ip = req.body.ip;
-		
-	if(!msg.ip){
-	    log.debug(log.getLineNumber(), log.getFileName(), 'no device selected');	
+		msg.id = req.body.deviceId;
+    
+    log.debug(log.getLineNumber(), log.getFileName(), 'POST: /setcolor/');	
+    
+      if(msg.id === 'undefined'){
+	consolelog('ERROR'.red.bold);
+}
+    
+	if(!Array.isArray(msg.id)){
+    var err = 'no device selected';
+	    log.debug(log.getLineNumber(), log.getFileName(), err);
+	    res.status(500).send({ error: err});
 	}else{
-		for(var i=0;i<client.length;i++){
-			for(var j=0;j<msg.ip.length;j++){
-				if(client[i].ipAddress === msg.ip[j]){
-					log.debug(log.getLineNumber(), log.getFileName(), 'set color: '.cyan.bold + msg.color + ' - ip: ' + msg.ip);	
-					client[i].color = msg.color;
+    
+		for(var i=0;i<clients.length;i++){
+			var c = clients[i];
+			for(var j=0;j<msg.id.length;j++){
+				if(c.id === msg.id[j]){
+					log.debug(log.getLineNumber(), log.getFileName(), 'set color: '.cyan.bold + msg.color + ' - ip: '.grey + c.ipAddress +':'+ c.port + ' - id: '.grey + msg.id);
+					//c.color = msg.color;
+					clients[i].color = msg.color;
 					setcolor = true;
+					res.status(200).send();
 					break;
 				}
 			}
 		}
 	}
 	if(!setcolor){
-	    log.error(log.getLineNumber(), log.getFileName(), 'could not set color ip: ' + ip);	
+	    log.error(log.getLineNumber(), log.getFileName(), 'could not set color ip: ' + msg.id);
+	    res.status(500).send({ error: 'could not set color id: ' + msg.id});
 	}
-	
-	res.send(200);
 	return;
+	}catch(e){
+		console.log('ERROR: ', e);
+	}
 });
 
 /* set brightness */
 app.post('/setbrightness/', function(req,res) {
+	try{
 	var setbrightness = null;
 	var msg = {};
 		msg.brightness = req.body.brightness; // string value
-		msg.ip = req.body.ip;
-		
-	if(!msg.ip){
-		log.error(log.getLineNumber(), log.getFileName(), 'no device selected');	
+		msg.id = req.body.deviceId;
+  
+	if(!Array.isArray(msg.id)){
+    var err = 'no device selected';
+		log.error(log.getLineNumber(), log.getFileName(), err);	
+		res.status(500).send({ error: err});
 	}else{
-		for(var i=0;i<client.length;i++){
-			for(var j=0;j<msg.ip.length;j++){
-				if(client[i].ipAddress === msg.ip[j]){
-					log.debug(log.getLineNumber(), log.getFileName(), 'set brightness: ' + msg.brightness + ' - ip: '.grey + msg.ip);	
+    
+    this.clients = clients;
+    for(var i=0;i<this.clients.length;i++){
+			var c = clients[i];
+			for(var j=0;j<msg.id.length;j++){
+				if(c.id === msg.id[j]){
+					log.debug(log.getLineNumber(), log.getFileName(), 'set brightness: ' + msg.brightness + ' - ip: '.grey + c.ipAddress +':'+ c.port + ' - id: '.grey + msg.id);
 
-					client[i].brightness = msg.brightness;
+					clients[i].brightness = msg.brightness;
 					setbrightness = true;
+					res.status(200).send();
 					break;
 				}
 			}
 		}
 	}
-	if(!setbrightness){
-		log.error(log.getLineNumber(), log.getFileName(), 'could not set brightness ip: '.grey + ip);
-	}
 	
-	res.send(200);
+	if(!setbrightness){
+		log.error(log.getLineNumber(), log.getFileName(), 'could not set brightness id: '.grey + msg.id);
+		res.status(500).send({ error: err});
+	}
+	return;
+	}catch(e){
+		console.log('ERROR: ', e);
+	}
+});
+
+app.post('/setPreset/', function(req,res) {
+	presets.set(config.presets.path, req.body.file, clients, function(err){
+		if(!err){
+			res.status(200).send();
+		}else{
+			log.error(log.getLineNumber(), log.getFileName(), 'set presets: ' + err);
+			res.status(500).send({ error: err});
+		}	
+	});	
+	return;
+});
+
+app.post('/presets/', function(req,res) {
+	presets.load(config.presets.path, function(err,files){
+		if(!err){
+			res.send(files);
+		}else{
+			log.error(log.getLineNumber(), log.getFileName(), 'load presets: ' + err);
+			res.status(500).send({ error: err});
+		}	
+	});	
+	return;
+});
+
+app.post('/effects/', function(req,res) {
+	effects.load(config.effects.path, function(err,files){
+		if(!err){
+			res.send(files);
+		}else{
+			log.error(log.getLineNumber(), log.getFileName(), 'load effects: ' + err);
+			res.status(500).send({ error: err});
+		}	
+	});	
+	return;
+});
+
+app.post('/stopEffect/', function(req,res) {
+	effects.stop(clients, function(err){
+		if(!err){
+			res.status(200).send();
+		}else{
+			log.error(log.getLineNumber(), log.getFileName(), 'run effect: ' + err);
+			res.status(500).send({ error: err});
+		}	
+	});	
+	return;
+});
+
+app.post('/runEffect/', function(req,res) {
+	effects.run(config.effects.path, req.body.file, clients, function(err){
+		if(!err){
+			res.status(200).send();
+		}else{
+			log.error(log.getLineNumber(), log.getFileName(), 'run effect: ' + err);
+			res.status(500).send({ error: err});
+		}	
+	});	
 	return;
 });
 
@@ -212,8 +354,10 @@ app.post('/setbrightness/', function(req,res) {
 if (app.get('env') === 'development') {
 	// production error handler
 	// no stacktraces leaked to user
-  app.use(function(err, req, res, next) {
-    res.status(err.status || 500);
+  app.use(function(err, req, res, next) {    
+	  log.error(log.getLineNumber(), log.getFileName(), 'app Error: ' + err);
+	  
+	res.status(err.status || 500);
     res.render('error', {	
       message: err.message,
       error: err
@@ -222,5 +366,3 @@ if (app.get('env') === 'development') {
 }
 //debug log
 //log.msg('info', log.getFileName(), log.getLineNumber(), 'package [iolink] - state [ready]'.cyan.bold);
-
-

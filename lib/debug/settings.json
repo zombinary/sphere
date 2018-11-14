@@ -1,4 +1,5 @@
 {
+	"enable": true,
 	"log": 4,
 	"logs": ["info", "warning","error","debug", "trace"],
 	"traceLevel": 10,

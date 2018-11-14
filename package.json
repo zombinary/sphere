@@ -1,24 +1,26 @@
 {
   "name": "sphere",
-  "version": "0.0.2",
+  "version": "0.0.5",
   "private": true,
   "scripts": {
     "start": "node app.js",
-    "test" : "mocha"
+    "test": ""
   },
   "dependencies": {
     "body-parser": "~1.15.1",
     "bootstrap-slider": "^6.0.16",
     "colors": "^1.1.2",
     "consolidate": "^0.14.1",
-    "cookie-parser": "~1.4.3",
+    "cookie-parser": "^1.4.3",
     "debug": "~2.2.0",
-    "express": "~4.13.4",
+    "express": "^4.13.4",
+    "gravity-aurora": "0.0.5",
     "jade": "~1.11.0",
     "knockout": "^3.4.0",
-    "morgan": "~1.7.0",
+    "morgan": "^1.7.0",
     "mustache": "^2.2.1",
-    "serve-favicon": "~2.3.0",
-    "stack-trace": "0.0.9"
+    "serve-favicon": "^2.3.2",
+    "stack-trace": "0.0.9",
+    "uuid": "^3.3.2"
   }
 }

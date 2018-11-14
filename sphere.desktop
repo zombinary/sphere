@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=Autostart-Script
+Comment=start sphere nodejs server for light controlling over tcp
+Type=Application
+Exec=/home/pi/sphere/run
+Terminal=true
